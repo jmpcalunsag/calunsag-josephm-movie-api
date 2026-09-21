@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Collection</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        background: #f4f4f4;
+      }
+
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      h1 {
+        text-align: center;
+      }
+
+      form {
+        margin-bottom: 20px;
+      }
+
+      input {
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+        padding: 8px;
+        box-sizing: border-box;
+      }
+
+      input[type='text'],
+      input[type='number'] {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: textfield;
+      }
+
+      button {
+        width: 100%;
+        padding: 10px;
+        background: #333;
+        color: white;
+        border: none;
+        cursor: pointer;
+        margin-top: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+
+      th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+
+      th {
+        background: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Movie Collection</h1>
+
+      <form id="movieForm">
+        <input type="text" id="title" placeholder="Title" required />
+        <input type="text" id="genre" placeholder="Genre" required />
+        <input type="text" id="year" placeholder="Year" required pattern="[0-9]*" inputmode="numeric" />
+        <button type="submit">Add Movie</button>
+      </form>
+
+      <button id="loadMoviesBtn" type="button">Load Movies</button>
+
+      <table id="movieTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Movie Name</th>
+            <th>Genre</th>
+            <th>Year</th>
+          </tr>
+        </thead>
+        <tbody id="movieList"></tbody>
+      </table>
+    </div>
+
+    <script>
+      const movieList = document.getElementById('movieList');
+      const movieForm = document.getElementById('movieForm');
+      const loadMoviesBtn = document.getElementById('loadMoviesBtn');
+
+      async function loadMovies() {
+        const response = await fetch('/api/movies');
+        const movies = await response.json();
+
+        movieList.innerHTML = '';
+
+        movies.forEach((movie) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${movie.id}</td>
+            <td>${movie.title}</td>
+            <td>${movie.genre}</td>
+            <td>${movie.year}</td>
+          `;
+          movieList.appendChild(row);
+        });
+      }
+
+      movieForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const movie = {
+          title: document.getElementById('title').value,
+          genre: document.getElementById('genre').value,
+          year: document.getElementById('year').value
+        };
+
+        const response = await fetch('/api/movies', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(movie)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Something went wrong');
+          return;
+        }
+
+        movieForm.reset();
+      });
+
+      loadMoviesBtn.addEventListener('click', loadMovies);
+    </script>
+  </body>
+</html>
