@@ -6,13 +6,9 @@ const port = 3000;
 
 app.use(express.json());
 
-let movies = [
-  { id: 1, title: 'Avengers: Doomsday', genre: 'Sci-Fi', year: 2026 },
-  { id: 2, title: 'Spider-Man: Brand New Day', genre: 'Sci-Fi', year: 2026 },
-  { id: 3, title: 'Iron Man', genre: 'Sci-Fi', year: 2008 }
-];
+let movies = [];
 
-let nextId = 4;
+let nextId = 1;
 
 app.get('/api/movies', (req, res) => {
   res.json(movies);

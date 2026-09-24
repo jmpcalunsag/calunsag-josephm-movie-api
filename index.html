@@ -27,6 +27,10 @@
         margin-bottom: 20px;
       }
 
+      .search-box {
+        margin: 16px 0;
+      }
+
       input {
         display: block;
         width: 100%;
@@ -80,6 +84,11 @@
         <button type="submit">Add Movie</button>
       </form>
 
+      <div class="search-box">
+        <input type="number" id="searchMovieId" placeholder="Search by ID" />
+        <button id="searchMovieBtn" type="button">Search by ID</button>
+      </div>
+
       <button id="loadMoviesBtn" type="button">Load Movies</button>
 
       <table id="movieTable">
@@ -99,12 +108,16 @@
       const movieList = document.getElementById('movieList');
       const movieForm = document.getElementById('movieForm');
       const loadMoviesBtn = document.getElementById('loadMoviesBtn');
+      const searchMovieBtn = document.getElementById('searchMovieBtn');
+      const searchMovieId = document.getElementById('searchMovieId');
 
-      async function loadMovies() {
-        const response = await fetch('/api/movies');
-        const movies = await response.json();
-
+      function renderMovies(movies) {
         movieList.innerHTML = '';
+
+        if (!movies.length) {
+          movieList.innerHTML = '<tr><td colspan="4">No movie found</td></tr>';
+          return;
+        }
 
         movies.forEach((movie) => {
           const row = document.createElement('tr');
@@ -116,6 +129,33 @@
           `;
           movieList.appendChild(row);
         });
+      }
+
+      async function loadMovies() {
+        const response = await fetch('/api/movies');
+        const movies = await response.json();
+
+        renderMovies(movies);
+      }
+
+      async function searchMovieById() {
+        const id = searchMovieId.value.trim();
+
+        if (!id) {
+          alert('Please enter a movie ID');
+          return;
+        }
+
+        const response = await fetch(`/api/movies/${id}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Movie not found');
+          renderMovies([]);
+          return;
+        }
+
+        renderMovies([data]);
       }
 
       movieForm.addEventListener('submit', async (e) => {
@@ -146,6 +186,7 @@
       });
 
       loadMoviesBtn.addEventListener('click', loadMovies);
+      searchMovieBtn.addEventListener('click', searchMovieById);
     </script>
   </body>
 </html>
